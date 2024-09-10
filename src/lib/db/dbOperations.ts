@@ -90,17 +90,33 @@ export async function saveNewsToDatabase(newsData: NewsAPIResponse) {
 }
 
 async function findArticlesByTags(connection: mysql.Connection, searchTags: string[]): Promise<Article[]> {
+  if (searchTags.length === 0) {
+    // If no tags, return the most recent articles
+    const [rows] = await connection.execute(`
+      SELECT *
+      FROM article
+      ORDER BY published_at DESC
+      LIMIT 10
+    `);
+    return rows as Article[];
+  }
+
   const placeholders = searchTags.map(() => '?').join(',');
   
   const [rows] = await connection.execute(`
-    SELECT DISTINCT a.*
+    SELECT a.*
     FROM article a
-    JOIN article_tag at ON a.id = at.article_id
-    JOIN tag t ON at.tag_id = t.id
-    WHERE t.name IN (${placeholders})
+    WHERE a.id IN (
+      SELECT at.article_id
+      FROM article_tag at
+      JOIN tag t ON at.tag_id = t.id
+      WHERE t.name IN (${placeholders})
+      GROUP BY at.article_id
+      HAVING COUNT(DISTINCT t.name) = ?
+    )
     ORDER BY a.published_at DESC
     LIMIT 10
-  `, searchTags);
+  `, [...searchTags, searchTags.length]);
 
   return rows as Article[];
 }

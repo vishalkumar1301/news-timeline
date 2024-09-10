@@ -13,6 +13,9 @@ export async function GET(request: Request) {
 
   try {
     const searchTags = generateTags(query);
+    if (searchTags.length === 0) {
+      return NextResponse.json({ error: 'No valid search terms found' }, { status: 400 });
+    }
     const searchResults: Article[] = await searchArticlesInDatabase(searchTags);
     return NextResponse.json(searchResults);
   } catch (error) {
