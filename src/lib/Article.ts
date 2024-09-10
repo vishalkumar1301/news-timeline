@@ -9,4 +9,5 @@ export interface Article {
   urlToImage: string;
   publishedAt: string;
   content: string;
+  tags?: string[];
 }

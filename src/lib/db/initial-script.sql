@@ -15,3 +15,16 @@ CREATE TABLE article (
   content TEXT,
   FOREIGN KEY (source_id) REFERENCES source(id)
 );
+
+CREATE TABLE tag (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE article_tag (
+  article_id INT,
+  tag_id INT,
+  PRIMARY KEY (article_id, tag_id),
+  FOREIGN KEY (article_id) REFERENCES article(id),
+  FOREIGN KEY (tag_id) REFERENCES tag(id)
+);
