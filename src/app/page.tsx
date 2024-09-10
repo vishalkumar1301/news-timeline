@@ -22,15 +22,11 @@ export default function Home() {
     }
   };
 
-  // useEffect(() => {
-  //   fetchNews();
-  // }, []);
-
   return (
     <div>
       <h1>News Timeline</h1>
       <button onClick={fetchNews}>Refresh News</button>
-      {error && <p style={{color: 'red'}}>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       {news.length > 0 && (
         <ul>
           {news.map((article, index) => (

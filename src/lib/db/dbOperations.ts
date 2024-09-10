@@ -55,6 +55,18 @@ async function linkArticleToTag(connection: mysql.Connection, articleId: number,
   );
 }
 
+async function saveArticleWithTags(connection: mysql.Connection, article: Article) {
+  await insertOrUpdateSource(connection, article.source);
+  const articleId = await insertArticle(connection, article);
+
+  if (article.tags && article.tags.length > 0) {
+    for (const tag of article.tags) {
+      const tagId = await insertTag(connection, tag);
+      await linkArticleToTag(connection, articleId, tagId);
+    }
+  }
+}
+
 export async function saveNewsToDatabase(newsData: NewsAPIResponse) {
   let connection;
   try {
@@ -64,15 +76,7 @@ export async function saveNewsToDatabase(newsData: NewsAPIResponse) {
     await connection.beginTransaction();
 
     for (const article of newsData.articles) {
-      await insertOrUpdateSource(connection, article.source);
-      const articleId = await insertArticle(connection, article);
-
-      if (article.tags) {
-        for (const tag of article.tags) {
-          const tagId = await insertTag(connection, tag);
-          await linkArticleToTag(connection, articleId, tagId);
-        }
-      }
+      await saveArticleWithTags(connection, article);
     }
 
     await connection.commit();
