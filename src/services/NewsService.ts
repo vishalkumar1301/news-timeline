@@ -21,4 +21,11 @@ export class NewsService {
       throw error;
     }
   }
+
+  searchArticles(articles: Article[], searchQuery: string): Article[] {
+    const searchTags = generateTags(searchQuery);
+    return articles.filter(article => 
+      article.tags?.some(tag => searchTags.includes(tag))
+    );
+  }
 }

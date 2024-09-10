@@ -4,14 +4,26 @@ import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Article } from '@/lib/Article'
 
-export default function Component() {
+export default function NewsSearch() {
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Article[]>([])
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Placeholder for search functionality
-    console.log('Searching for:', searchQuery)
+    if (!searchQuery.trim()) return;
+
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch search results')
+      }
+      const data = await response.json()
+      setSearchResults(data)
+    } catch (error) {
+      console.error('Error searching news:', error)
+    }
   }
 
   return (
@@ -35,6 +47,19 @@ export default function Component() {
           </Button>
         </div>
       </form>
+      {searchResults.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Search Results</h2>
+          <ul className="space-y-4">
+            {searchResults.map((article, index) => (
+              <li key={index} className="border-b pb-4">
+                <h3 className="font-semibold">{article.title}</h3>
+                <p className="text-sm text-gray-600">{article.description}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </>
   )
 }

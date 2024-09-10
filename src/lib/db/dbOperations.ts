@@ -88,3 +88,29 @@ export async function saveNewsToDatabase(newsData: NewsAPIResponse) {
     if (connection) connection.release();
   }
 }
+
+async function findArticlesByTags(connection: mysql.Connection, searchTags: string[]): Promise<Article[]> {
+  const placeholders = searchTags.map(() => '?').join(',');
+  
+  const [rows] = await connection.execute(`
+    SELECT DISTINCT a.*
+    FROM article a
+    JOIN article_tag at ON a.id = at.article_id
+    JOIN tag t ON at.tag_id = t.id
+    WHERE t.name IN (${placeholders})
+    ORDER BY a.published_at DESC
+    LIMIT 10
+  `, searchTags);
+
+  return rows as Article[];
+}
+
+export async function searchArticlesInDatabase(searchTags: string[]): Promise<Article[]> {
+  const pool = await getPool();
+  const connection = await pool.getConnection();
+  try {
+    return await findArticlesByTags(connection, searchTags);
+  } finally {
+    connection.release();
+  }
+}
