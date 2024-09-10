@@ -15,8 +15,8 @@ export default function Component() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">News Timeline</h1>
+    <>
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">News Timeline</h1>
       <form onSubmit={handleSearch} className="w-full max-w-md">
         <div className="relative">
           <Input
@@ -24,17 +24,17 @@ export default function Component() {
             placeholder="Search news..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+            className="w-full pl-12 pr-20 py-6 text-lg text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
           />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
           <Button
             type="submit"
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-1 text-sm transition-colors duration-300"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 py-3 text-base transition-colors duration-300"
           >
             Search
           </Button>
         </div>
       </form>
-    </div>
+    </>
   )
 }
