@@ -22,9 +22,9 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    fetchNews();
-  }, []);
+  // useEffect(() => {
+  //   fetchNews();
+  // }, []);
 
   return (
     <div>

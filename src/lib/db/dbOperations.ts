@@ -1,5 +1,6 @@
 import mysql from 'mysql2/promise';
 import { NewsAPIResponse } from '../NewsAPIResponse';
+import { Article } from '../Article';
 
 let pool: mysql.Pool | null = null;
 
@@ -17,6 +18,43 @@ async function getPool() {
   return pool;
 }
 
+async function insertOrUpdateSource(connection: mysql.Connection, source: Article['source']) {
+  await connection.execute(
+    'INSERT INTO source (id, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = ?',
+    [source.id || 'unknown', source.name, source.name]
+  );
+}
+
+async function insertArticle(connection: mysql.Connection, article: Article): Promise<number> {
+  const [result] = await connection.execute(
+    'INSERT INTO article (source_id, author, title, description, url, url_to_image, published_at, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [
+      article.source.id || 'unknown',
+      article.author,
+      article.title,
+      article.description,
+      article.url,
+      article.urlToImage,
+      new Date(article.publishedAt),
+      article.content,
+    ]
+  );
+  return (result as mysql.ResultSetHeader).insertId;
+}
+
+async function insertTag(connection: mysql.Connection, tag: string): Promise<number> {
+  await connection.execute('INSERT IGNORE INTO tag (name) VALUES (?)', [tag]);
+  const [tagResult] = await connection.execute('SELECT id FROM tag WHERE name = ?', [tag]);
+  return (tagResult as any)[0].id;
+}
+
+async function linkArticleToTag(connection: mysql.Connection, articleId: number, tagId: number) {
+  await connection.execute(
+    'INSERT IGNORE INTO article_tag (article_id, tag_id) VALUES (?, ?)',
+    [articleId, tagId]
+  );
+}
+
 export async function saveNewsToDatabase(newsData: NewsAPIResponse) {
   let connection;
   try {
@@ -26,43 +64,13 @@ export async function saveNewsToDatabase(newsData: NewsAPIResponse) {
     await connection.beginTransaction();
 
     for (const article of newsData.articles) {
-      // Insert or update source
-      await connection.execute(
-        'INSERT INTO source (id, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = ?',
-        [article.source.id || 'unknown', article.source.name, article.source.name]
-      );
+      await insertOrUpdateSource(connection, article.source);
+      const articleId = await insertArticle(connection, article);
 
-      // Insert article
-      const [result] = await connection.execute(
-        'INSERT INTO article (source_id, author, title, description, url, url_to_image, published_at, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [
-          article.source.id || 'unknown',
-          article.author,
-          article.title,
-          article.description,
-          article.url,
-          article.urlToImage,
-          new Date(article.publishedAt),
-          article.content,
-        ]
-      );
-
-      const articleId = (result as mysql.ResultSetHeader).insertId;
-
-      // Insert tags and link them to the article
       if (article.tags) {
         for (const tag of article.tags) {
-          await connection.execute(
-            'INSERT IGNORE INTO tag (name) VALUES (?)',
-            [tag]
-          );
-          const [tagResult] = await connection.execute('SELECT id FROM tag WHERE name = ?', [tag]);
-          const tagId = (tagResult as any)[0].id;
-          
-          await connection.execute(
-            'INSERT IGNORE INTO article_tag (article_id, tag_id) VALUES (?, ?)',
-            [articleId, tagId]
-          );
+          const tagId = await insertTag(connection, tag);
+          await linkArticleToTag(connection, articleId, tagId);
         }
       }
     }
