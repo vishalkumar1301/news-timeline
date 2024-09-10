@@ -5,6 +5,7 @@ import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Article } from '@/lib/Article'
+import NewsTimeline from '@/components/NewsTimeline'
 
 export default function NewsSearch() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -27,9 +28,9 @@ export default function NewsSearch() {
   }
 
   return (
-    <>
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">News Timeline</h1>
-      <form onSubmit={handleSearch} className="w-full max-w-md">
+    <div className="container mx-auto p-4 max-w-4xl">
+      <h1 className="text-3xl font-bold mb-8 text-center">News Timeline</h1>
+      <form onSubmit={handleSearch} className="w-full max-w-md mx-auto mb-8">
         <div className="relative">
           <Input
             type="text"
@@ -47,19 +48,11 @@ export default function NewsSearch() {
           </Button>
         </div>
       </form>
-      {searchResults.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Search Results</h2>
-          <ul className="space-y-4">
-            {searchResults.map((article, index) => (
-              <li key={index} className="border-b pb-4">
-                <h3 className="font-semibold">{article.title}</h3>
-                <p className="text-sm text-gray-600">{article.description}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {searchResults.length > 0 ? (
+        <NewsTimeline articles={searchResults} />
+      ) : (
+        <p className="text-center text-gray-500">No results found. Try a different search query.</p>
       )}
-    </>
+    </div>
   )
 }
