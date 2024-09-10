@@ -1,32 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { fetchNews } from '@/utils/api';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { Article } from '@/lib/Article';
 
 export default function Home() {
-  const [news, setNews] = useState([]);
+  const [news, setNews] = useState<Article[]>([]);
   const [error, setError] = useState('');
 
-  const handleFetchNews = async () => {
+  const fetchNews = async () => {
     try {
-      const articles = await fetchNews('us', 'technology', 10);
-      setNews(articles);
+      const response = await fetch('/api/news');
+      if (!response.ok) {
+        throw new Error('Failed to fetch news');
+      }
+      const data = await response.json();
+      setNews(data);
       setError('');
     } catch (error) {
       console.error('Error fetching news:', error);
-      if (axios.isAxiosError(error)) {
-        setError(`Axios error: ${error.message}\nResponse: ${JSON.stringify(error.response?.data)}`);
-      } else {
-        setError(`Unknown error: ${error}`);
-      }
+      setError(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
 
   return (
     <div>
       <h1>News Timeline</h1>
-      <button onClick={handleFetchNews}>Fetch News</button>
+      <button onClick={fetchNews}>Refresh News</button>
       {error && <p style={{color: 'red'}}>{error}</p>}
       {news.length > 0 && (
         <ul>
