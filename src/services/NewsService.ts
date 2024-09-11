@@ -11,9 +11,10 @@ export class NewsService {
     }));
   }
 
-  async fetchNewsFromNewsAPI(country: string = '', category: string = '', pageSize: number = 20): Promise<NewsAPIResponse> {
+  async fetchNewsFromNewsAPI(country: string = '', category: string = '', pageSize: number = 20, page: number = 1): Promise<NewsAPIResponse> {
     try {
-      const newsData: NewsAPIResponse = await fetchNewsFromAPI(country, category, pageSize);
+
+      const newsData: NewsAPIResponse = await fetchNewsFromAPI(country, category, pageSize, page);
       const articlesWithTags = this.addTagsToArticles(newsData.articles);
       return { ...newsData, articles: articlesWithTags };
     } catch (error) {

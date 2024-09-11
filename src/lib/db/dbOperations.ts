@@ -58,6 +58,7 @@ async function linkArticleToTag(connection: mysql.Connection, articleId: number,
 async function saveArticleWithTags(connection: mysql.Connection, article: Article) {
   const exists = await articleExists(connection, article.url, article.title);
   if (exists) {
+    console.log(`Article already exists: ${article.url}`);
     return;
   }
 

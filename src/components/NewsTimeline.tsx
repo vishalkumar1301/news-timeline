@@ -62,7 +62,7 @@ export default function NewsTimeline({ articles }: { articles: Article[] }) {
 									<Globe className="mr-1 h-4 w-4" />
 									<span>{article.sourceId}</span>
 								</div>
-								{article.urlToImage && (
+								{/* {article.urlToImage && (
 									<Image
 										src={article.urlToImage}
 										alt={article.title}
@@ -70,7 +70,7 @@ export default function NewsTimeline({ articles }: { articles: Article[] }) {
 										height={300}
 										className="rounded-md mb-4 object-cover w-full"
 									/>
-								)}
+								)} */}
 								<p className="text-muted-foreground">{article.description}</p>
 								{expandedArticle === article.url && (
 									<div className="mt-4">
