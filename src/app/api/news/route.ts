@@ -6,7 +6,7 @@ const newsService = new NewsService();
 
 export async function GET() {
   try {
-    const newsData = await newsService.getNews('us', 'technology', 10);
+    const newsData = await newsService.fetchNewsFromNewsAPIAndStoreInDatabase('us', '', 20);
 
     try {
       await saveNewsToDatabase(newsData);

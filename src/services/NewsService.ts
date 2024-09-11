@@ -1,4 +1,4 @@
-import { fetchNews } from '@/utils/api';
+import { fetchNewsFromAPI } from './NewsAPIService';
 import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
 import { generateTags } from '@/utils/tagGenerator';
 import { Article } from '@/lib/Article';
@@ -11,18 +11,18 @@ export class NewsService {
     }));
   }
 
-  async getNews(country: string = 'us', category: string = 'technology', pageSize: number = 10): Promise<NewsAPIResponse> {
+  async fetchNewsFromNewsAPIAndStoreInDatabase(country: string = '', category: string = '', pageSize: number = 20): Promise<NewsAPIResponse> {
     try {
-      const newsData: NewsAPIResponse = await fetchNews(country, category, pageSize);
+      const newsData: NewsAPIResponse = await fetchNewsFromAPI(country, category, pageSize);
       const articlesWithTags = this.addTagsToArticles(newsData.articles);
       return { ...newsData, articles: articlesWithTags };
     } catch (error) {
-      console.error('Error fetching news:', error);
+      console.error('Error fetching and processing news:', error);
       throw error;
     }
   }
 
-  searchArticles(articles: Article[], searchQuery: string): Article[] {
+  filterArticlesByGeneratedTags(articles: Article[], searchQuery: string): Article[] {
     const searchTags = generateTags(searchQuery);
     return articles.filter(article => 
       article.tags?.some(tag => searchTags.includes(tag))
