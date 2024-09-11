@@ -5,15 +5,15 @@ CREATE TABLE source (
 
 CREATE TABLE article (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  source_id VARCHAR(50),
+  sourceId VARCHAR(50),
   author VARCHAR(100),
   title VARCHAR(1000) NOT NULL,
   description TEXT,
   url VARCHAR(2048) NOT NULL,
-  url_to_image VARCHAR(2048),
-  published_at DATETIME NOT NULL,
+  urlToImage VARCHAR(2048),
+  publishedAt DATETIME NOT NULL,
   content TEXT,
-  FOREIGN KEY (source_id) REFERENCES source(id)
+  FOREIGN KEY (sourceId) REFERENCES source(id)
 );
 
 CREATE TABLE tag (
@@ -22,9 +22,9 @@ CREATE TABLE tag (
 );
 
 CREATE TABLE article_tag (
-  article_id INT,
-  tag_id INT,
-  PRIMARY KEY (article_id, tag_id),
-  FOREIGN KEY (article_id) REFERENCES article(id),
-  FOREIGN KEY (tag_id) REFERENCES tag(id)
+  articleId INT,
+  tagId INT,
+  PRIMARY KEY (articleId, tagId),
+  FOREIGN KEY (articleId) REFERENCES article(id),
+  FOREIGN KEY (tagId) REFERENCES tag(id)
 );

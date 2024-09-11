@@ -45,12 +45,12 @@ export default function NewsTimeline({ articles }: { articles: Article[] }) {
                                 </div>
                                 <div className="flex items-center text-sm text-muted-foreground mb-2">
                                     <Clock className="mr-1 h-4 w-4" />
-                                    <time dateTime={article.published_at}>
-                                        {formatDate(article.published_at)}
+                                    <time dateTime={article.publishedAt}>
+                                        {formatDate(article.publishedAt)}
                                     </time>
                                     <span className="mx-2">•</span>
                                     <Globe className="mr-1 h-4 w-4" />
-                                    <span>{article.source_id}</span>
+                                    <span>{article.source.id}</span>
                                 </div>
                                 {article.urlToImage && (
                                     <Image
