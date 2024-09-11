@@ -7,4 +7,6 @@ export interface NewsAPIRequestParams {
   from?: string;
   to?: string;
   sortBy?: string;
+  domains?: string[];
+  sources?: string[];
 }

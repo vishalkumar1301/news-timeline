@@ -30,7 +30,7 @@ function createFilteredResponse(response: NewsAPIResponse, filteredArticles: Art
   return {
     ...response,
     articles: filteredArticles,
-    totalResults: filteredArticles.length,
+    totalResults: response.totalResults,
   };
 }
 
@@ -38,11 +38,26 @@ export async function fetchNewsFromAPI(params: NewsAPIRequestParams): Promise<Ne
   try {
     const url = buildApiUrl();
     const requestParams = getRequestParams(params);
+    
+    // Log the URL and request parameters
+    console.log('Fetching news from API');
+    console.log('URL:', url);
+    console.log('Request Params:', requestParams);
+
     const response = await axios.get<NewsAPIResponse>(url, { params: requestParams });
 
+    // Log the raw response data
+    // console.log('Raw Response Data:', response.data);
+
     const filteredArticles = filterValidArticles(response.data.articles);
-    return createFilteredResponse(response.data, filteredArticles);
+    const filteredResponse = createFilteredResponse(response.data, filteredArticles);
+
+    // Log the filtered response data
+    // console.log('Filtered Response Data:', filteredResponse);
+
+    return filteredResponse;
   } catch (error) {
+    // Log the error
     console.error('Error fetching news from API:', error);
     throw error;
   }
