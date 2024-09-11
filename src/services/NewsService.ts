@@ -11,7 +11,7 @@ export class NewsService {
     }));
   }
 
-  async fetchNewsFromNewsAPIAndStoreInDatabase(country: string = '', category: string = '', pageSize: number = 20): Promise<NewsAPIResponse> {
+  async fetchNewsFromNewsAPI(country: string = '', category: string = '', pageSize: number = 20): Promise<NewsAPIResponse> {
     try {
       const newsData: NewsAPIResponse = await fetchNewsFromAPI(country, category, pageSize);
       const articlesWithTags = this.addTagsToArticles(newsData.articles);

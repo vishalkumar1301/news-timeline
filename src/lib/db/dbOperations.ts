@@ -56,6 +56,11 @@ async function linkArticleToTag(connection: mysql.Connection, articleId: number,
 }
 
 async function saveArticleWithTags(connection: mysql.Connection, article: Article) {
+  const exists = await articleExists(connection, article.url, article.title);
+  if (exists) {
+    return;
+  }
+
   await insertOrUpdateSource(connection, article.source);
   const articleId = await insertArticle(connection, article);
 
@@ -65,6 +70,14 @@ async function saveArticleWithTags(connection: mysql.Connection, article: Articl
       await linkArticleToTag(connection, articleId, tagId);
     }
   }
+}
+
+async function articleExists(connection: mysql.Connection, url: string, title: string): Promise<boolean> {
+  const [rows] = await connection.execute(
+    'SELECT id FROM article WHERE url = ? OR title = ?',
+    [url, title]
+  );
+  return (rows as any[]).length > 0;
 }
 
 export async function saveNewsToDatabase(newsData: NewsAPIResponse) {

@@ -1,18 +1,24 @@
 import { NextResponse } from 'next/server';
 import { NewsService } from '@/services/NewsService';
+import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
 import { saveNewsToDatabase } from '@/lib/db/dbOperations';
+
+
+
 
 const newsService = new NewsService();
 
+
+
+
 export async function GET() {
   try {
-    const newsData = await newsService.fetchNewsFromNewsAPIAndStoreInDatabase('us', '', 20);
+    const newsData: NewsAPIResponse = await newsService.fetchNewsFromNewsAPI('us', '', 20);
 
     try {
       await saveNewsToDatabase(newsData);
     } catch (dbError) {
       console.error('Database error:', dbError);
-      // Continue with the request even if database save fails
     }
 
     return NextResponse.json(newsData.articles);
