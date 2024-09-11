@@ -27,7 +27,7 @@ async function insertOrUpdateSource(connection: mysql.Connection, source: Articl
 
 async function insertArticle(connection: mysql.Connection, article: Article): Promise<number> {
   const [result] = await connection.execute(
-    'INSERT INTO article (source_id, author, title, description, url, url_to_image, published_at, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO article (sourceId, author, title, description, url, urlToImage, publishedAt, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
     [
       article.source.id || 'unknown',
       article.author,
@@ -50,7 +50,7 @@ async function insertTag(connection: mysql.Connection, tag: string): Promise<num
 
 async function linkArticleToTag(connection: mysql.Connection, articleId: number, tagId: number) {
   await connection.execute(
-    'INSERT IGNORE INTO article_tag (article_id, tag_id) VALUES (?, ?)',
+    'INSERT IGNORE INTO article_tag (articleId, tagId) VALUES (?, ?)',
     [articleId, tagId]
   );
 }
@@ -95,7 +95,7 @@ async function findArticlesByTags(connection: mysql.Connection, searchTags: stri
     const [rows] = await connection.execute(`
       SELECT *
       FROM article
-      ORDER BY published_at DESC
+      ORDER BY publishedAt DESC
       LIMIT 10
     `);
     return rows as Article[];
@@ -107,14 +107,14 @@ async function findArticlesByTags(connection: mysql.Connection, searchTags: stri
     SELECT a.*
     FROM article a
     WHERE a.id IN (
-      SELECT at.article_id
+      SELECT at.articleId
       FROM article_tag at
-      JOIN tag t ON at.tag_id = t.id
+      JOIN tag t ON at.tagId = t.id
       WHERE t.name IN (${placeholders})
-      GROUP BY at.article_id
+      GROUP BY at.articleId
       HAVING COUNT(DISTINCT t.name) = ?
     )
-    ORDER BY a.published_at DESC
+    ORDER BY a.publishedAt DESC
     LIMIT 10
   `, [...searchTags, searchTags.length]);
 
