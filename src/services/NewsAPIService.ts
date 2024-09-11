@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { Article } from '@/lib/Article';
 import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
+import { NewsAPIRequestParams } from '@/lib/NewsAPIRequestParams';
 
 const API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY;
-const API_URL = 'https://newsapi.org/v2/top-headlines';
+const API_URL = 'https://newsapi.org/v2/everything';
 
 function filterValidArticles(articles: Article[]): Article[] {
   return articles.filter((article: Article) => 
@@ -14,16 +15,15 @@ function filterValidArticles(articles: Article[]): Article[] {
   );
 }
 
-function buildApiUrl(country: string): string {
-  return `${API_URL}?country=${country}&apiKey=${API_KEY}`;
+function buildApiUrl(): string {
+  return `${API_URL}?apiKey=${API_KEY}`;
 }
 
-function getRequestParams(category: string, pageSize: number, page: number) {
-  return {
-    ...(category && { category }),
-    ...(pageSize && { pageSize }),
-    ...(page && { page }),
-  };
+function getRequestParams(params: NewsAPIRequestParams) {
+  return Object.entries(params).reduce((acc, [key, value]) => {
+    if (value) acc[key] = value;
+    return acc;
+  }, {} as Record<string, string | number>);
 }
 
 function createFilteredResponse(response: NewsAPIResponse, filteredArticles: Article[]): NewsAPIResponse {
@@ -34,11 +34,11 @@ function createFilteredResponse(response: NewsAPIResponse, filteredArticles: Art
   };
 }
 
-export async function fetchNewsFromAPI(country = '', category = '', pageSize = 20, page = 1): Promise<NewsAPIResponse> {
+export async function fetchNewsFromAPI(params: NewsAPIRequestParams): Promise<NewsAPIResponse> {
   try {
-    const url = buildApiUrl(country);
-    const params = getRequestParams(category, pageSize, page);
-    const response = await axios.get<NewsAPIResponse>(url, { params });
+    const url = buildApiUrl();
+    const requestParams = getRequestParams(params);
+    const response = await axios.get<NewsAPIResponse>(url, { params: requestParams });
 
     const filteredArticles = filterValidArticles(response.data.articles);
     return createFilteredResponse(response.data, filteredArticles);

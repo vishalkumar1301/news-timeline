@@ -1,3 +1,4 @@
+import { NewsAPIRequestParams } from '@/lib/NewsAPIRequestParams';
 import { fetchNewsFromAPI } from './NewsAPIService';
 import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
 import { generateTags } from '@/utils/tagGenerator';
@@ -11,10 +12,9 @@ export class NewsService {
     }));
   }
 
-  async fetchNewsFromNewsAPI(country: string = '', category: string = '', pageSize: number = 20, page: number = 1): Promise<NewsAPIResponse> {
+  async fetchNewsFromNewsAPI(params: NewsAPIRequestParams): Promise<NewsAPIResponse> {
     try {
-
-      const newsData: NewsAPIResponse = await fetchNewsFromAPI(country, category, pageSize, page);
+      const newsData: NewsAPIResponse = await fetchNewsFromAPI(params);
       const articlesWithTags = this.addTagsToArticles(newsData.articles);
       return { ...newsData, articles: articlesWithTags };
     } catch (error) {
