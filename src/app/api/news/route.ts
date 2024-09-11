@@ -5,27 +5,36 @@ import { saveNewsToDatabase } from '@/lib/db/dbOperations';
 import { Article } from '@/lib/Article';
 
 const newsService = new NewsService();
+const ARTICLES_PER_PAGE = 20;
 
 export async function GET() {
   try {
     let allArticles: Article[] = [];
     
-    // Loop through all pages
-    for (let page = 1; page <= 5; page++) {  // Reduced to 5 pages to avoid rate limiting
-      const newsData: NewsAPIResponse = await newsService.fetchNewsFromNewsAPI('us', '', 20, page);
-      
+    // Fetch the first page to get totalResults
+    const firstPageData: NewsAPIResponse = await newsService.fetchNewsFromNewsAPI('us', '', ARTICLES_PER_PAGE, 1);
+    
+    allArticles.push(...firstPageData.articles);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(firstPageData.totalResults / ARTICLES_PER_PAGE);
+
+    // Fetch remaining pages
+    for (let page = 2; page <= totalPages; page++) {
+      const newsData: NewsAPIResponse = await newsService.fetchNewsFromNewsAPI('us', '', ARTICLES_PER_PAGE, page);
       allArticles.push(...newsData.articles);
 
-      try {
-        await saveNewsToDatabase(newsData);
-        console.log(`Saved news from page ${page} to database`);
-      } catch (dbError) {
-        console.error(`Database error on page ${page}:`, dbError);
-        // Continue with the next page even if database save fails
-      }
-
       // Add a small delay to avoid hitting rate limits
-      // await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // Save all articles to database at once
+    try {
+      await saveNewsToDatabase({ articles: allArticles, status: 'ok', totalResults: allArticles.length });
+      console.log(`Saved all news articles to database`);
+    } catch (dbError) {
+      console.error(`Database error while saving articles:`, dbError);
+      // Continue with the request even if database save fails
     }
 
     return NextResponse.json(allArticles);
