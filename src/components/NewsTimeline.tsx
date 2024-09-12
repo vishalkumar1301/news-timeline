@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { ChevronRightIcon, Clock, Globe } from 'lucide-react'
 import { Article } from '@/lib/Article'
-import Image from 'next/image'
 
 export default function NewsTimeline({ articles }: { articles: Article[] }) {
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)

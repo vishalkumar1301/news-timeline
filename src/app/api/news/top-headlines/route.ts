@@ -14,7 +14,7 @@ const API_DELAY = 1000; // 1 second delay between API calls
 export async function GET() {
   console.log('Starting GET request for top headlines');
   try {
-    let allArticles: Article[] = [];
+    const allArticles: Article[] = [];
     
     console.log('Fetching first page of top headlines');
     const firstPageData: NewsAPIResponse = await newsService.fetchTopHeadlines({

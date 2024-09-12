@@ -44,8 +44,8 @@ async function insertArticle(connection: mysql.Connection, article: Article): Pr
 
 async function insertTag(connection: mysql.Connection, tag: string): Promise<number> {
   await connection.execute('INSERT IGNORE INTO tag (name) VALUES (?)', [tag]);
-  const [tagResult] = await connection.execute('SELECT id FROM tag WHERE name = ?', [tag]);
-  return (tagResult as any)[0].id;
+  const [tagResult] = await connection.execute<mysql.RowDataPacket[]>('SELECT id FROM tag WHERE name = ?', [tag]);
+  return tagResult[0].id;
 }
 
 async function linkArticleToTag(connection: mysql.Connection, articleId: number, tagId: number) {
@@ -78,7 +78,7 @@ async function articleExists(connection: mysql.Connection, url: string, title: s
     'SELECT id FROM article WHERE url = ? OR title = ?',
     [url, title]
   );
-  return (rows as any[]).length > 0;
+  return (rows as mysql.RowDataPacket[]).length > 0;
 }
 
 export async function saveNewsToDatabase(newsData: NewsAPIResponse) {

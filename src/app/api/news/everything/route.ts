@@ -13,7 +13,7 @@ const API_DELAY = 1000; // 1 second delay between API calls
 
 export async function GET() {
   try {
-    let allArticles: Article[] = [];
+    const allArticles: Article[] = [];
     
     const firstPageData: NewsAPIResponse = await newsService.fetchEverything({
       ...params,
