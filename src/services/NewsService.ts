@@ -1,8 +1,8 @@
-import { NewsAPIRequestParams } from '@/lib/NewsAPIRequestParams';
-import { fetchNewsFromAPI } from './NewsAPIService';
 import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
 import { generateTags } from '@/utils/tagGenerator';
 import { Article } from '@/lib/Article';
+import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from '@/lib/NewsAPIRequestParams';
+import { fetchEverything, fetchTopHeadlines } from './NewsAPIService';
 
 export class NewsService {
   private addTagsToArticles(articles: Article[]): Article[] {
@@ -12,13 +12,24 @@ export class NewsService {
     }));
   }
 
-  async fetchNewsFromNewsAPI(params: NewsAPIRequestParams): Promise<NewsAPIResponse> {
+  async fetchEverything(params: NewsAPIEverythingParams): Promise<NewsAPIResponse> {
     try {
-      const newsData: NewsAPIResponse = await fetchNewsFromAPI(params);
+      const newsData = await fetchEverything(params);
       const articlesWithTags = this.addTagsToArticles(newsData.articles);
       return { ...newsData, articles: articlesWithTags };
     } catch (error) {
-      console.error('Error fetching and processing news:', error);
+      console.error('Error fetching and processing everything news:', error);
+      throw error;
+    }
+  }
+
+  async fetchTopHeadlines(params: NewsAPITopHeadlinesParams): Promise<NewsAPIResponse> {
+    try {
+      const newsData = await fetchTopHeadlines(params);
+      const articlesWithTags = this.addTagsToArticles(newsData.articles);
+      return { ...newsData, articles: articlesWithTags };
+    } catch (error) {
+      console.error('Error fetching and processing top headlines:', error);
       throw error;
     }
   }

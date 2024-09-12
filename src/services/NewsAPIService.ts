@@ -1,27 +1,28 @@
 import axios from 'axios';
 import { Article } from '@/lib/Article';
 import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
-import { NewsAPIRequestParams } from '@/lib/NewsAPIRequestParams';
+import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from '@/lib/NewsAPIRequestParams';
 
 const API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY;
-const API_URL = 'https://newsapi.org/v2/everything';
+const API_BASE_URL = 'https://newsapi.org/v2';
 
 function filterValidArticles(articles: Article[]): Article[] {
   return articles.filter((article: Article) => 
-    article.title && article.description && article.content &&
+    article.title && article.description &&
     !article.title.includes("[Removed]") &&
-    !article.description.includes("[Removed]") &&
-    !article.content.includes("[Removed]")
+    !article.description.includes("[Removed]")
   );
 }
 
-function buildApiUrl(): string {
-  return `${API_URL}?apiKey=${API_KEY}`;
+function buildApiUrl(endpoint: string): string {
+  return `${API_BASE_URL}${endpoint}?apiKey=${API_KEY}`;
 }
 
-function getRequestParams(params: NewsAPIRequestParams) {
+function getRequestParams(params: NewsAPIEverythingParams | NewsAPITopHeadlinesParams): Record<string, string | number> {
   return Object.entries(params).reduce((acc, [key, value]) => {
-    if (value) acc[key] = value;
+    if (value != null && key !== 'apiKey' && key !== 'baseRoute' && (typeof value === 'string' || typeof value === 'number')) {
+      acc[key] = value;
+    }
     return acc;
   }, {} as Record<string, string | number>);
 }
@@ -34,31 +35,43 @@ function createFilteredResponse(response: NewsAPIResponse, filteredArticles: Art
   };
 }
 
-export async function fetchNewsFromAPI(params: NewsAPIRequestParams): Promise<NewsAPIResponse> {
+export async function fetchEverything(params: NewsAPIEverythingParams): Promise<NewsAPIResponse> {
   try {
-    const url = buildApiUrl();
+    const url = buildApiUrl('/everything');
     const requestParams = getRequestParams(params);
     
-    // Log the URL and request parameters
-    console.log('Fetching news from API');
+    console.log('Fetching news from Everything endpoint');
     console.log('URL:', url);
     console.log('Request Params:', requestParams);
 
     const response = await axios.get<NewsAPIResponse>(url, { params: requestParams });
-
-    // Log the raw response data
-    // console.log('Raw Response Data:', response.data);
-
+    // console get request url with params
+    console.log('GET request URL:', response.request.url);
     const filteredArticles = filterValidArticles(response.data.articles);
-    const filteredResponse = createFilteredResponse(response.data, filteredArticles);
-
-    // Log the filtered response data
-    // console.log('Filtered Response Data:', filteredResponse);
-
-    return filteredResponse;
+    return createFilteredResponse(response.data, filteredArticles);
   } catch (error) {
-    // Log the error
-    console.error('Error fetching news from API:', error);
+    console.error('Error fetching news from Everything endpoint:', error);
+    throw error;
+  }
+}
+
+export async function fetchTopHeadlines(params: NewsAPITopHeadlinesParams): Promise<NewsAPIResponse> {
+  try {
+    const url = buildApiUrl('/top-headlines');
+    const requestParams = getRequestParams(params);
+    
+    console.log('Fetching news from Top Headlines endpoint');
+    console.log('URL:', url);
+    console.log('Request Params:', requestParams);
+
+    
+    const response = await axios.get<NewsAPIResponse>(url, { params: requestParams });
+    // console get request url with params
+    console.log('GET request URL:', response.request.url);
+    const filteredArticles = filterValidArticles(response.data.articles);
+    return createFilteredResponse(response.data, filteredArticles);
+  } catch (error) {
+    console.error('Error fetching news from Top Headlines endpoint:', error);
     throw error;
   }
 }
