@@ -5,12 +5,17 @@ import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from '@/lib/NewsAP
 import { fetchEverything, fetchTopHeadlines } from './NewsAPIService';
 
 export class NewsService {
+
+
+
   private addTagsToArticles(articles: Article[]): Article[] {
     return articles.map(article => ({
       ...article,
-      tags: generateTags(article.title)
+      tags: generateTags(article.title + ' ' + article.description)
     }));
   }
+
+
 
   async fetchEverything(params: NewsAPIEverythingParams): Promise<NewsAPIResponse> {
     try {

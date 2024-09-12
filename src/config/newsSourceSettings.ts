@@ -9,8 +9,8 @@ export const THE_VERGE_SETTINGS = {
     pageSize: 100,
     sortBy: "publishedAt",
     page: 1,
-    from: "2024-09-10",
-    to: "2024-09-11",
+    from: "2024-09-01",
+    to: "2024-09-06",
   } as NewsAPIEverythingParams,
 };
 

@@ -39,14 +39,9 @@ export async function fetchEverything(params: NewsAPIEverythingParams): Promise<
   try {
     const url = buildApiUrl('/everything');
     const requestParams = getRequestParams(params);
-    
-    console.log('Fetching news from Everything endpoint');
-    console.log('URL:', url);
-    console.log('Request Params:', requestParams);
 
     const response = await axios.get<NewsAPIResponse>(url, { params: requestParams });
     // console get request url with params
-    console.log('GET request URL:', response.request.url);
     const filteredArticles = filterValidArticles(response.data.articles);
     return createFilteredResponse(response.data, filteredArticles);
   } catch (error) {
@@ -59,15 +54,10 @@ export async function fetchTopHeadlines(params: NewsAPITopHeadlinesParams): Prom
   try {
     const url = buildApiUrl('/top-headlines');
     const requestParams = getRequestParams(params);
-    
-    console.log('Fetching news from Top Headlines endpoint');
-    console.log('URL:', url);
-    console.log('Request Params:', requestParams);
 
     
     const response = await axios.get<NewsAPIResponse>(url, { params: requestParams });
     // console get request url with params
-    console.log('GET request URL:', response.request.url);
     const filteredArticles = filterValidArticles(response.data.articles);
     return createFilteredResponse(response.data, filteredArticles);
   } catch (error) {
