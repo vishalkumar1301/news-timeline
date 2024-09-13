@@ -1,0 +1,1162 @@
+----- ./sentry.server.config.ts -----
+// This file configures the initialization of Sentry on the server.
+// The config you add here will be used whenever the server handles a request.
+// https://docs.sentry.io/platforms/javascript/guides/nextjs/
+
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: "https://2afe47ae9731681be6f5e1cbe7dd4149@o4507940938645504.ingest.us.sentry.io/4507941519556608",
+
+  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+  tracesSampleRate: 1,
+
+  // Setting this option to true will print useful information to the console while you're setting up Sentry.
+  debug: false,
+});
+
+
+
+----- ./next-env.d.ts -----
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/building-your-application/configuring/typescript for more information.
+
+
+
+----- ./sentry.client.config.ts -----
+// This file configures the initialization of Sentry on the client.
+// The config you add here will be used whenever a users loads a page in their browser.
+// https://docs.sentry.io/platforms/javascript/guides/nextjs/
+
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: "https://2afe47ae9731681be6f5e1cbe7dd4149@o4507940938645504.ingest.us.sentry.io/4507941519556608",
+
+  // Add optional integrations for additional features
+  integrations: [
+    Sentry.replayIntegration(),
+  ],
+
+  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+  tracesSampleRate: 1,
+
+  // Define how likely Replay events are sampled.
+  // This sets the sample rate to be 10%. You may want this to be 100% while
+  // in development and sample at a lower rate in production
+  replaysSessionSampleRate: 0.1,
+
+  // Define how likely Replay events are sampled when an error occurs.
+  replaysOnErrorSampleRate: 1.0,
+
+  // Setting this option to true will print useful information to the console while you're setting up Sentry.
+  debug: false,
+});
+
+
+
+----- ./tailwind.config.ts -----
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+    darkMode: ["class"],
+    content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+  	extend: {
+  		colors: {
+  			background: 'hsl(var(--background))',
+  			foreground: 'hsl(var(--foreground))',
+  			card: {
+  				DEFAULT: 'hsl(var(--card))',
+  				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			popover: {
+  				DEFAULT: 'hsl(var(--popover))',
+  				foreground: 'hsl(var(--popover-foreground))'
+  			},
+  			primary: {
+  				DEFAULT: 'hsl(var(--primary))',
+  				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			secondary: {
+  				DEFAULT: 'hsl(var(--secondary))',
+  				foreground: 'hsl(var(--secondary-foreground))'
+  			},
+  			muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+  			},
+  			accent: {
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			destructive: {
+  				DEFAULT: 'hsl(var(--destructive))',
+  				foreground: 'hsl(var(--destructive-foreground))'
+  			},
+  			border: 'hsl(var(--border))',
+  			input: 'hsl(var(--input))',
+  			ring: 'hsl(var(--ring))',
+  			chart: {
+  				'1': 'hsl(var(--chart-1))',
+  				'2': 'hsl(var(--chart-2))',
+  				'3': 'hsl(var(--chart-3))',
+  				'4': 'hsl(var(--chart-4))',
+  				'5': 'hsl(var(--chart-5))'
+  			}
+  		},
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		}
+  	}
+  },
+  plugins: [require("tailwindcss-animate")],
+};
+export default config;
+
+
+
+----- ./sentry.edge.config.ts -----
+// This file configures the initialization of Sentry for edge features (middleware, edge routes, and so on).
+// The config you add here will be used whenever one of the edge features is loaded.
+// Note that this config is unrelated to the Vercel Edge Runtime and is also required when running locally.
+// https://docs.sentry.io/platforms/javascript/guides/nextjs/
+
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: "https://2afe47ae9731681be6f5e1cbe7dd4149@o4507940938645504.ingest.us.sentry.io/4507941519556608",
+
+  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+  tracesSampleRate: 1,
+
+  // Setting this option to true will print useful information to the console while you're setting up Sentry.
+  debug: false,
+});
+
+
+
+----- ./src/app/news/page.tsx -----
+'use client';
+
+import { useState } from 'react';
+import NewsTimeline from '@/components/NewsTimeline';
+import { Article } from '@/lib/Article';
+
+export default function NewsPage() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [articles, setArticles] = useState<Article[]>([]);
+
+  const handleFetchNews = async (endpoint: 'everything' | 'top-headlines') => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`/api/news/${endpoint}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch news from ${endpoint}`);
+      }
+      const data = await response.json();
+      setArticles(data);
+    } catch (err) {
+      setError(`Failed to fetch news from ${endpoint}`);
+      console.error(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Click a button for daily magic</h1>
+      <div className="flex space-x-4 mb-8">
+        <button
+          onClick={() => handleFetchNews('everything')}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Fetch Everything'}
+        </button>
+        <button
+          onClick={() => handleFetchNews('top-headlines')}
+          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Fetch Top Headlines'}
+        </button>
+      </div>
+      {error && <p className="text-red-500 mt-4 mb-8">{error}</p>}
+      {articles.length > 0 && <NewsTimeline articles={articles} />}
+    </div>
+  );
+}
+
+
+----- ./src/app/layout.tsx -----
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import "./globals.css";
+
+const geistSans = localFont({
+  src: "./fonts/GeistVF.woff",
+  variable: "--font-geist-sans",
+  weight: "100 900",
+});
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+});
+
+export const metadata: Metadata = {
+  title: "Create Next App",
+  description: "Generated by create next app",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+
+
+
+----- ./src/app/api/search/route.ts -----
+import { NextResponse } from 'next/server';
+import { searchArticlesInDatabase } from '@/lib/db/dbOperations';
+import { generateTags } from '@/utils/tagGenerator';
+import { Article } from '@/lib/Article';
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const query = searchParams.get('q');
+
+  if (!query) {
+    return NextResponse.json({ error: 'Search query is required' }, { status: 400 });
+  }
+
+  try {
+    const searchTags = generateTags(query);
+    if (searchTags.length === 0) {
+      return NextResponse.json({ error: 'No valid search terms found' }, { status: 400 });
+    }
+    const searchResults: Article[] = await searchArticlesInDatabase(searchTags);
+    return NextResponse.json(searchResults);
+  } catch (error) {
+    console.error('Error in search API route:', error);
+    return NextResponse.json({ error: 'Failed to search articles' }, { status: 500 });
+  }
+}
+
+
+----- ./src/app/api/news/everything/route.ts -----
+import { Article } from '@/lib/Article';
+import { NextResponse } from 'next/server';
+import { NewsService } from '@/services/NewsService';
+import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
+import { saveNewsToDatabase } from '@/lib/db/dbOperations';
+import { NewsAPIEverythingParams } from '@/lib/NewsAPIRequestParams';
+import { THE_VERGE_SETTINGS } from '@/config/newsSourceSettings';
+
+const newsService = new NewsService();
+
+const { params, TOTAL_PAGE_LIMIT } = THE_VERGE_SETTINGS;
+const API_DELAY = 1000; // 1 second delay between API calls
+
+export async function GET() {
+  try {
+    const allArticles: Article[] = [];
+    
+    const firstPageData: NewsAPIResponse = await newsService.fetchEverything({
+      ...params,
+      page: 1
+    } as NewsAPIEverythingParams);
+    
+    allArticles.push(...firstPageData.articles);
+
+    const totalPages = Math.ceil(firstPageData.totalResults / (params.pageSize || 20));
+
+    for (let page = 2; page <= totalPages && page <= TOTAL_PAGE_LIMIT; page++) {
+      const newsData: NewsAPIResponse = await newsService.fetchEverything({
+        ...params,
+        page
+      } as NewsAPIEverythingParams);
+      allArticles.push(...newsData.articles);
+
+      await new Promise(resolve => setTimeout(resolve, API_DELAY));
+    }
+
+    await saveNewsToDatabase({ articles: allArticles, status: 'ok', totalResults: allArticles.length });
+
+    return NextResponse.json(allArticles);
+  } catch (error) {
+    console.error('Error in API route:', error);
+    throw error;
+  }
+}
+
+
+----- ./src/app/api/news/top-headlines/route.ts -----
+import { Article } from '@/lib/Article';
+import { NextResponse } from 'next/server';
+import { NewsService } from '@/services/NewsService';
+import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
+import { saveNewsToDatabase } from '@/lib/db/dbOperations';
+import { NewsAPITopHeadlinesParams } from '@/lib/NewsAPIRequestParams';
+import { REUTERS_SETTINGS } from '@/config/newsSourceSettings';
+
+const newsService = new NewsService();
+
+const { params, TOTAL_PAGE_LIMIT } = REUTERS_SETTINGS;
+const API_DELAY = 1000; // 1 second delay between API calls
+
+export async function GET() {
+  try {
+    const allArticles: Article[] = [];
+    
+    const firstPageData: NewsAPIResponse = await newsService.fetchTopHeadlines({
+      ...params,
+      page: 1
+    } as NewsAPITopHeadlinesParams);
+    
+    allArticles.push(...firstPageData.articles);
+
+    const totalPages = Math.ceil(firstPageData.totalResults / (params.pageSize || 20));
+
+    for (let page = 2; page <= totalPages && page <= TOTAL_PAGE_LIMIT; page++) {
+      const newsData: NewsAPIResponse = await newsService.fetchTopHeadlines({
+        ...params,
+        page
+      } as NewsAPITopHeadlinesParams);
+      allArticles.push(...newsData.articles);
+
+      await new Promise(resolve => setTimeout(resolve, API_DELAY));
+    }
+
+    await saveNewsToDatabase({ articles: allArticles, status: 'ok', totalResults: allArticles.length });
+
+    return NextResponse.json(allArticles);
+  } catch (error) {
+    console.error('Error in API route:', error);
+    throw error;
+  }
+}
+
+
+----- ./src/app/page.tsx -----
+'use client';
+
+import NewsSearch from '@/components/NewsSearch';
+
+export default function Home() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+      <NewsSearch />
+    </div>
+  );
+}
+
+
+
+----- ./src/app/globals.css -----
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+
+----- ./src/app/global-error.tsx -----
+"use client";
+
+import * as Sentry from "@sentry/nextjs";
+import NextError from "next/error";
+import { useEffect } from "react";
+
+export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
+  return (
+    <html>
+      <body>
+        {/* `NextError` is the default Next.js error page component. Its type
+        definition requires a `statusCode` prop. However, since the App Router
+        does not expose status codes for errors, we simply pass 0 to render a
+        generic error message. */}
+        <NextError statusCode={0} />
+      </body>
+    </html>
+  );
+}
+
+
+----- ./src/config/newsSourceSettings.ts -----
+import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from "@/lib/NewsAPIRequestParams";
+
+export const THE_VERGE_SETTINGS = {
+    // everything
+  TOTAL_PAGE_LIMIT: 1,
+  params: {
+    apiKey: process.env.NEXT_PUBLIC_NEWS_API_KEY,
+    sources: "the-verge",
+    pageSize: 100,
+    sortBy: "publishedAt",
+    page: 1,
+    from: "2024-09-01",
+    to: "2024-09-06",
+  } as NewsAPIEverythingParams,
+};
+
+
+export const REUTERS_SETTINGS = {
+    // top-headlines
+  TOTAL_PAGE_LIMIT: 1,
+  params: {
+    apiKey: process.env.NEXT_PUBLIC_NEWS_API_KEY,
+    sources: "reuters",
+    sortBy: "popularity",
+    pageSize: 10,
+    page: 1,
+  } as NewsAPITopHeadlinesParams,
+};
+
+
+----- ./src/utils/tagGenerator.ts -----
+import natural from 'natural';
+
+const tokenizer = new natural.WordTokenizer();
+const stopwords = new Set(['the', 'a', 'an', 'in', 'on', 'at', 'for', 'to', 'of', 'and', 'or', 'but']);
+
+export function generateTags(title: string): string[] {
+  const tokens = tokenizer.tokenize(title.toLowerCase());
+  const tags = tokens
+    .filter(token => token.length > 2 && !stopwords.has(token));
+
+  return Array.from(new Set(tags)); // Remove duplicates
+}
+
+
+----- ./src/components/ui/button.tsx -----
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-8",
+        icon: "h-9 w-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button"
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Button.displayName = "Button"
+
+export { Button, buttonVariants }
+
+
+
+----- ./src/components/ui/input.tsx -----
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Input.displayName = "Input"
+
+export { Input }
+
+
+
+----- ./src/components/NewsTimeline.tsx -----
+'use client'
+
+import { useState } from 'react'
+import { ChevronRightIcon, Clock, Globe } from 'lucide-react'
+import { Article } from '@/lib/Article'
+
+export default function NewsTimeline({ articles }: { articles: Article[] }) {
+	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+	const [expandedArticle, setExpandedArticle] = useState<string | null>(null)
+
+	const formatDate = (dateString: string) => {
+		const date = new Date(dateString);
+		return {
+			date: date.getDate().toString(),
+			month: date.toLocaleString('default', { month: 'short' }),
+		};
+	};
+
+	const toggleArticle = (articleId: string) => {
+		setExpandedArticle(expandedArticle === articleId ? null : articleId)
+	}
+
+	return (
+		<div className="max-w-2xl mx-auto p-4">
+			<h2 className="text-2xl font-bold mb-6 text-center">News Timeline</h2>
+			<div className="space-y-8">
+				{articles.map((article, index) => {
+					const { date, month } = formatDate(article.publishedAt)
+					return (
+						<div
+							key={index}
+							className="flex items-center space-x-4"
+							onMouseEnter={() => setHoveredIndex(index)}
+							onMouseLeave={() => setHoveredIndex(null)}
+						>
+							<div className="flex-shrink-0 w-24 text-right">
+								<div className="font-bold text-2xl">{date}</div>
+								<div className="text-sm text-muted-foreground">{month}</div>
+							</div>
+							<div className="flex-shrink-0 w-4 h-4 rounded-full bg-primary" />
+							<div
+								className={`flex-grow p-4 rounded-lg transition-all duration-300 ${
+									hoveredIndex === index ? 'bg-muted shadow-lg -translate-y-1' : 'bg-background'
+								}`}
+							>
+								<h3 className="font-semibold text-lg mb-2 flex items-center">
+									{article.title}
+									<ChevronRightIcon
+										className={`ml-2 w-5 h-5 transition-transform duration-300 ${
+											hoveredIndex === index ? 'translate-x-1' : ''
+										}`}
+										onClick={() => toggleArticle(article.url)}
+									/>
+								</h3>
+								<div className="flex items-center text-sm text-muted-foreground mb-2">
+									<Clock className="mr-1 h-4 w-4" />
+									<time dateTime={article.publishedAt}>
+										{new Date(article.publishedAt).toLocaleDateString()}
+									</time>
+									<span className="mx-2">•</span>
+									<Globe className="mr-1 h-4 w-4" />
+									<span>{article.sourceId}</span>
+								</div>
+								{/* {article.urlToImage && (
+									<Image
+										src={article.urlToImage}
+										alt={article.title}
+										width={600}
+										height={300}
+										className="rounded-md mb-4 object-cover w-full"
+									/>
+								)} */}
+								<p className="text-muted-foreground">{article.description}</p>
+								{expandedArticle === article.url && (
+									<div className="mt-4">
+										<p className="mb-4">{article.content}</p>
+										<a
+											href={article.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="inline-block text-primary hover:underline"
+										>
+											Read full article
+										</a>
+									</div>
+								)}
+							</div>
+						</div>
+					)
+				})}
+			</div>
+		</div>
+	)
+}
+
+
+----- ./src/components/NewsSearch.tsx -----
+'use client'
+
+import { useState } from 'react'
+import { Search } from 'lucide-react'
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Article } from '@/lib/Article'
+import NewsTimeline from '@/components/NewsTimeline'
+
+export default function NewsSearch() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Article[]>([])
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return;
+
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch search results')
+      }
+      const data = await response.json()
+      setSearchResults(data)
+    } catch (error) {
+      console.error('Error searching news:', error)
+    }
+  }
+
+  return (
+    <div className="container mx-auto p-4 max-w-4xl">
+      <h1 className="text-3xl font-bold mb-8 text-center">News Timeline</h1>
+      <form onSubmit={handleSearch} className="w-full max-w-md mx-auto mb-8">
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder="Search news..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-20 py-6 text-lg text-gray-700 bg-white border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
+          />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
+          <Button
+            type="submit"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 py-3 text-base transition-colors duration-300"
+          >
+            Search
+          </Button>
+        </div>
+      </form>
+      {searchResults.length > 0 ? (
+        <NewsTimeline articles={searchResults} />
+      ) : (
+        <p className="text-center text-gray-500">No results found. Try a different search query.</p>
+      )}
+    </div>
+  )
+}
+
+
+----- ./src/lib/Article.ts -----
+import { Source } from './Source';
+
+export interface Article {
+  sourceId: string;
+  source: Source;
+  author: string;
+  title: string;
+  description: string;
+  url: string;
+  urlToImage: string;
+  publishedAt: string;
+  content: string;
+  tags?: string[];
+}
+
+
+----- ./src/lib/Source.ts -----
+export interface Source {
+  id: string | null;
+  name: string;
+}
+
+
+----- ./src/lib/NewsAPIResponse.ts -----
+import { Article } from "./Article";
+
+export interface NewsAPIResponse {
+  status: string;
+  totalResults: number;
+  articles: Article[];
+}
+
+
+
+----- ./src/lib/utils.ts -----
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+
+
+----- ./src/lib/NewsAPIRequestParams.ts -----
+export interface NewsAPIEverythingParams {
+  apiKey: string;
+  q?: string;
+  searchIn?: string;
+  sources: string;
+  domains?: string;
+  excludeDomains?: string;
+  from?: string;
+  to?: string;
+  language?: string;
+  sortBy?: string;
+  pageSize: number;
+  page?: number;
+}
+
+export interface NewsAPITopHeadlinesParams {
+  apiKey: string;
+  country?: string;
+  category?: string;
+  sources: string;
+  q?: string;
+  pageSize?: number;
+  page?: number;
+}
+
+// Keep the original interface for backwards compatibility if needed
+export interface NewsAPIRequestParams extends NewsAPIEverythingParams {}
+
+
+----- ./src/lib/db/dbOperations.ts -----
+import mysql from 'mysql2/promise';
+import { NewsAPIResponse } from '../NewsAPIResponse';
+import { Article } from '../Article';
+
+let pool: mysql.Pool | null = null;
+
+async function getPool() {
+  if (!pool) {
+    pool = mysql.createPool({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
+      connectionLimit: 10,
+    });
+  }
+  return pool;
+}
+
+async function insertOrUpdateSource(connection: mysql.Connection, source: Article['source']) {
+  await connection.execute(
+    'INSERT INTO source (id, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE name = ?',
+    [source.id || 'unknown', source.name, source.name]
+  );
+}
+
+async function insertArticle(connection: mysql.Connection, article: Article): Promise<number> {
+  const [result] = await connection.execute(
+    'INSERT INTO article (sourceId, author, title, description, url, urlToImage, publishedAt, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [
+      article.source.id || 'unknown',
+      article.author,
+      article.title,
+      article.description,
+      article.url,
+      article.urlToImage,
+      new Date(article.publishedAt),
+      article.content,
+    ]
+  );
+  return (result as mysql.ResultSetHeader).insertId;
+}
+
+async function insertTag(connection: mysql.Connection, tag: string): Promise<number> {
+  await connection.execute('INSERT IGNORE INTO tag (name) VALUES (?)', [tag]);
+  const [tagResult] = await connection.execute<mysql.RowDataPacket[]>('SELECT id FROM tag WHERE name = ?', [tag]);
+  return tagResult[0].id;
+}
+
+async function linkArticleToTag(connection: mysql.Connection, articleId: number, tagId: number) {
+  await connection.execute(
+    'INSERT IGNORE INTO article_tag (articleId, tagId) VALUES (?, ?)',
+    [articleId, tagId]
+  );
+}
+
+async function saveArticleWithTags(connection: mysql.Connection, article: Article) {
+  const exists = await articleExists(connection, article.url, article.title);
+  if (exists) {
+    console.log(`Article already exists: ${article.url}`);
+    return;
+  }
+
+  await insertOrUpdateSource(connection, article.source);
+  const articleId = await insertArticle(connection, article);
+
+  if (article.tags && article.tags.length > 0) {
+    for (const tag of article.tags) {
+      const tagId = await insertTag(connection, tag);
+      await linkArticleToTag(connection, articleId, tagId);
+    }
+  }
+}
+
+async function articleExists(connection: mysql.Connection, url: string, title: string): Promise<boolean> {
+  const [rows] = await connection.execute(
+    'SELECT id FROM article WHERE url = ? OR title = ?',
+    [url, title]
+  );
+  return (rows as mysql.RowDataPacket[]).length > 0;
+}
+
+export async function saveNewsToDatabase(newsData: NewsAPIResponse) {
+  let connection;
+  try {
+    const pool = await getPool();
+    connection = await pool.getConnection();
+    
+    await connection.beginTransaction();
+
+    for (const article of newsData.articles) {
+      await saveArticleWithTags(connection, article);
+    }
+
+    await connection.commit();
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error('Error saving news to database:', error);
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+async function findArticlesByTags(connection: mysql.Connection, searchTags: string[]): Promise<Article[]> {
+  if (searchTags.length === 0) {
+    // If no tags, return the most recent articles
+    const [rows] = await connection.execute(`
+      SELECT *
+      FROM article
+      ORDER BY publishedAt DESC
+      LIMIT 10
+    `);
+    return rows as Article[];
+  }
+
+  const placeholders = searchTags.map(() => '?').join(',');
+  
+  const [rows] = await connection.execute(`
+    SELECT a.*
+    FROM article a
+    WHERE a.id IN (
+      SELECT at.articleId
+      FROM article_tag at
+      JOIN tag t ON at.tagId = t.id
+      WHERE t.name IN (${placeholders})
+      GROUP BY at.articleId
+      HAVING COUNT(DISTINCT t.name) = ?
+    )
+    ORDER BY a.publishedAt DESC
+    LIMIT 10
+  `, [...searchTags, searchTags.length]);
+
+  return rows as Article[];
+}
+
+export async function searchArticlesInDatabase(searchTags: string[]): Promise<Article[]> {
+  const pool = await getPool();
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    return await findArticlesByTags(connection, searchTags);
+  } catch (error) {
+    console.error('Error searching articles in database:', error);
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+
+----- ./src/instrumentation.ts -----
+import * as Sentry from '@sentry/nextjs';
+
+export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('../sentry.server.config');
+  }
+
+  if (process.env.NEXT_RUNTIME === 'edge') {
+    await import('../sentry.edge.config');
+  }
+}
+
+export const onRequestError = Sentry.captureRequestError;
+
+
+
+----- ./src/services/NewsAPIService.ts -----
+import axios from 'axios';
+import { Article } from '@/lib/Article';
+import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
+import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from '@/lib/NewsAPIRequestParams';
+
+const API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY;
+const API_BASE_URL = 'https://newsapi.org/v2';
+
+function filterValidArticles(articles: Article[]): Article[] {
+  return articles.filter((article: Article) => 
+    article.title && article.description &&
+    !article.title.includes("[Removed]") &&
+    !article.description.includes("[Removed]")
+  );
+}
+
+function buildApiUrl(endpoint: string): string {
+  return `${API_BASE_URL}${endpoint}?apiKey=${API_KEY}`;
+}
+
+function getRequestParams(params: NewsAPIEverythingParams | NewsAPITopHeadlinesParams): Record<string, string | number> {
+  return Object.entries(params).reduce((acc, [key, value]) => {
+    if (value != null && key !== 'apiKey' && key !== 'baseRoute' && (typeof value === 'string' || typeof value === 'number')) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {} as Record<string, string | number>);
+}
+
+function createFilteredResponse(response: NewsAPIResponse, filteredArticles: Article[]): NewsAPIResponse {
+  return {
+    ...response,
+    articles: filteredArticles,
+    totalResults: response.totalResults,
+  };
+}
+
+export async function fetchEverything(params: NewsAPIEverythingParams): Promise<NewsAPIResponse> {
+  try {
+    const url = buildApiUrl('/everything');
+    const requestParams = getRequestParams(params);
+
+    const response = await axios.get<NewsAPIResponse>(url, { params: requestParams });
+    // console get request url with params
+    const filteredArticles = filterValidArticles(response.data.articles);
+    return createFilteredResponse(response.data, filteredArticles);
+  } catch (error) {
+    console.error('Error fetching news from Everything endpoint:', error);
+    throw error;
+  }
+}
+
+export async function fetchTopHeadlines(params: NewsAPITopHeadlinesParams): Promise<NewsAPIResponse> {
+  try {
+    const url = buildApiUrl('/top-headlines');
+    const requestParams = getRequestParams(params);
+
+    
+    const response = await axios.get<NewsAPIResponse>(url, { params: requestParams });
+    // console get request url with params
+    const filteredArticles = filterValidArticles(response.data.articles);
+    return createFilteredResponse(response.data, filteredArticles);
+  } catch (error) {
+    console.error('Error fetching news from Top Headlines endpoint:', error);
+    throw error;
+  }
+}
+
+
+----- ./src/services/NewsService.ts -----
+import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
+import { generateTags } from '@/utils/tagGenerator';
+import { Article } from '@/lib/Article';
+import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from '@/lib/NewsAPIRequestParams';
+import { fetchEverything, fetchTopHeadlines } from './NewsAPIService';
+
+export class NewsService {
+  private addTagsToArticles(articles: Article[]): Article[] {
+    return articles.map(article => ({
+      ...article,
+      tags: generateTags(article.title + ' ' + article.description)
+    }));
+  }
+
+  async fetchEverything(params: NewsAPIEverythingParams): Promise<NewsAPIResponse> {
+    try {
+      const newsData = await fetchEverything(params);
+      const articlesWithTags = this.addTagsToArticles(newsData.articles);
+      return { ...newsData, articles: articlesWithTags };
+    } catch (error) {
+      console.error('Error fetching and processing everything news:', error);
+      throw error;
+    }
+  }
+
+  async fetchTopHeadlines(params: NewsAPITopHeadlinesParams): Promise<NewsAPIResponse> {
+    try {
+      const newsData = await fetchTopHeadlines(params);
+      const articlesWithTags = this.addTagsToArticles(newsData.articles);
+      return { ...newsData, articles: articlesWithTags };
+    } catch (error) {
+      console.error('Error fetching and processing top headlines:', error);
+      throw error;
+    }
+  }
+
+  filterArticlesByGeneratedTags(articles: Article[], searchQuery: string): Article[] {
+    try {
+      const searchTags = generateTags(searchQuery);
+      return articles.filter(article => 
+        article.tags?.some(tag => searchTags.includes(tag))
+      );
+    } catch (error) {
+      console.error('Error filtering articles by generated tags:', error);
+      throw error;
+    }
+  }
+}
+
+
