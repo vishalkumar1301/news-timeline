@@ -39,6 +39,6 @@ export async function GET() {
     return NextResponse.json(allArticles);
   } catch (error) {
     console.error('Error in API route:', error);
-    return NextResponse.json({ error: 'Failed to fetch news' }, { status: 500 });
+    throw error;
   }
 }
