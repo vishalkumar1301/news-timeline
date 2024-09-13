@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Article } from '@/lib/Article';
 import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
 import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from '@/lib/NewsAPIRequestParams';
+import * as Sentry from '@sentry/nextjs';
 
 const API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY;
 const API_BASE_URL = 'https://newsapi.org/v2';
@@ -46,6 +47,7 @@ export async function fetchEverything(params: NewsAPIEverythingParams): Promise<
     return createFilteredResponse(response.data, filteredArticles);
   } catch (error) {
     console.error('Error fetching news from Everything endpoint:', error);
+    Sentry.captureException(error);
     throw error;
   }
 }
@@ -62,6 +64,7 @@ export async function fetchTopHeadlines(params: NewsAPITopHeadlinesParams): Prom
     return createFilteredResponse(response.data, filteredArticles);
   } catch (error) {
     console.error('Error fetching news from Top Headlines endpoint:', error);
+    Sentry.captureException(error);
     throw error;
   }
 }
