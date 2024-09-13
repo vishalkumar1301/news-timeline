@@ -34,11 +34,7 @@ export async function GET() {
       await new Promise(resolve => setTimeout(resolve, API_DELAY));
     }
 
-    try {
-      await saveNewsToDatabase({ articles: allArticles, status: 'ok', totalResults: allArticles.length });
-    } catch (dbError) {
-      console.error('Database error while saving articles:', dbError);
-    }
+    await saveNewsToDatabase({ articles: allArticles, status: 'ok', totalResults: allArticles.length });
 
     return NextResponse.json(allArticles);
   } catch (error) {

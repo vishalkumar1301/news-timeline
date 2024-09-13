@@ -137,10 +137,14 @@ async function findArticlesByTags(connection: mysql.Connection, searchTags: stri
 
 export async function searchArticlesInDatabase(searchTags: string[]): Promise<Article[]> {
   const pool = await getPool();
-  const connection = await pool.getConnection();
+  let connection;
   try {
+    connection = await pool.getConnection();
     return await findArticlesByTags(connection, searchTags);
+  } catch (error) {
+    console.error('Error searching articles in database:', error);
+    throw error;
   } finally {
-    connection.release();
+    if (connection) connection.release();
   }
 }

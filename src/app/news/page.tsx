@@ -22,6 +22,7 @@ export default function NewsPage() {
     } catch (err) {
       setError(`Failed to fetch news from ${endpoint}`);
       console.error(err);
+      throw err;
     } finally {
       setLoading(false);
     }

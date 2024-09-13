@@ -5,17 +5,12 @@ import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from '@/lib/NewsAP
 import { fetchEverything, fetchTopHeadlines } from './NewsAPIService';
 
 export class NewsService {
-
-
-
   private addTagsToArticles(articles: Article[]): Article[] {
     return articles.map(article => ({
       ...article,
       tags: generateTags(article.title + ' ' + article.description)
     }));
   }
-
-
 
   async fetchEverything(params: NewsAPIEverythingParams): Promise<NewsAPIResponse> {
     try {
@@ -40,9 +35,14 @@ export class NewsService {
   }
 
   filterArticlesByGeneratedTags(articles: Article[], searchQuery: string): Article[] {
-    const searchTags = generateTags(searchQuery);
-    return articles.filter(article => 
-      article.tags?.some(tag => searchTags.includes(tag))
-    );
+    try {
+      const searchTags = generateTags(searchQuery);
+      return articles.filter(article => 
+        article.tags?.some(tag => searchTags.includes(tag))
+      );
+    } catch (error) {
+      console.error('Error filtering articles by generated tags:', error);
+      throw error;
+    }
   }
 }
