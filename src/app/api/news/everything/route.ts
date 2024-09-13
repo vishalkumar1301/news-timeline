@@ -23,6 +23,7 @@ export async function GET() {
     } as NewsAPIEverythingParams);
     
     allArticles.push(...firstPageData.articles);
+    await saveNewsToDatabase({ articles: firstPageData.articles, status: 'ok', totalResults: firstPageData.articles.length });
 
     const totalPages = Math.ceil(firstPageData.totalResults / (params.pageSize || 20));
 
@@ -32,11 +33,11 @@ export async function GET() {
         page
       } as NewsAPIEverythingParams);
       allArticles.push(...newsData.articles);
-
+      
+      await saveNewsToDatabase({ articles: newsData.articles, status: 'ok', totalResults: newsData.articles.length });
+      
       await new Promise(resolve => setTimeout(resolve, API_DELAY));
     }
-
-    await saveNewsToDatabase({ articles: allArticles, status: 'ok', totalResults: allArticles.length });
 
     return NextResponse.json(allArticles);
   } catch (error) {

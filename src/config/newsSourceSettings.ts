@@ -2,15 +2,15 @@ import { NewsAPIEverythingParams, NewsAPITopHeadlinesParams } from "@/lib/NewsAP
 
 export const THE_VERGE_SETTINGS = {
     // everything
-  TOTAL_PAGE_LIMIT: 1,
+  TOTAL_PAGE_LIMIT: 3,
   params: {
     apiKey: process.env.NEXT_PUBLIC_NEWS_API_KEY,
     sources: "the-verge",
-    pageSize: 100,
+    pageSize: 20,
     sortBy: "publishedAt",
     page: 1,
-    from: "2024-09-01",
-    to: "2024-09-06",
+    from: "2024-09-09",
+    to: "2024-09-12",
   } as NewsAPIEverythingParams,
 };
 
