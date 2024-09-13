@@ -11,6 +11,8 @@ const newsService = new NewsService();
 const { params, TOTAL_PAGE_LIMIT } = THE_VERGE_SETTINGS;
 const API_DELAY = 1000; // 1 second delay between API calls
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const allArticles: Article[] = [];
