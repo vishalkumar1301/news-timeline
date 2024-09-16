@@ -47,6 +47,10 @@ export default function FetchTopHeadlines({ onFetchSuccess, onFetchError }: Fetc
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (settings.params.sources.length === 0) {
+      setError('Please select at least one source');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -72,6 +76,8 @@ export default function FetchTopHeadlines({ onFetchSuccess, onFetchError }: Fetc
     }
   };
 
+  const isSubmitDisabled = settings.params.sources.length === 0 || loading;
+
   console.log('Render settings:', settings);
 
   return (
@@ -79,7 +85,7 @@ export default function FetchTopHeadlines({ onFetchSuccess, onFetchError }: Fetc
       <h2 className="text-2xl font-bold mb-4">Fetch Top Headlines</h2>
       
       <div>
-        <Label htmlFor="sources">Sources</Label>
+        <Label htmlFor="sources">Sources (required)</Label>
         <MultiSelect
           options={sourceOptions}
           selected={settings.params.sources}
@@ -110,7 +116,7 @@ export default function FetchTopHeadlines({ onFetchSuccess, onFetchError }: Fetc
         </div>
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" className="w-full" disabled={isSubmitDisabled}>
         {loading ? 'Fetching...' : 'Fetch Top Headlines'}
       </Button>
 

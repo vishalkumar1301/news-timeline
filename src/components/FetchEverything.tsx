@@ -49,6 +49,10 @@ export default function FetchEverything({ onFetchSuccess, onFetchError }: FetchE
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (settings.params.sources.length === 0) {
+      setError('Please select at least one source');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -77,6 +81,8 @@ export default function FetchEverything({ onFetchSuccess, onFetchError }: FetchE
     }
   };
 
+  const isSubmitDisabled = settings.params.sources.length === 0 || loading;
+
   console.log('Render settings:', settings);
 
   return (
@@ -84,7 +90,7 @@ export default function FetchEverything({ onFetchSuccess, onFetchError }: FetchE
       <h2 className="text-2xl font-bold mb-4">Fetch Everything</h2>
       
       <div>
-        <Label htmlFor="sources">Sources</Label>
+        <Label htmlFor="sources">Sources (required)</Label>
         <MultiSelect
           options={sourceOptions}
           selected={settings.params.sources}
@@ -151,7 +157,7 @@ export default function FetchEverything({ onFetchSuccess, onFetchError }: FetchE
         </div>
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" className="w-full" disabled={isSubmitDisabled}>
         {loading ? 'Fetching...' : 'Fetch Everything'}
       </Button>
 
