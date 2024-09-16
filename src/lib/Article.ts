@@ -1,5 +1,3 @@
-import { Source } from './Source';
-
 export interface Article {
   source: {
     id: string | null;
@@ -12,4 +10,5 @@ export interface Article {
   urlToImage: string | null;
   publishedAt: string;
   content: string | null;
+  tags: string[];
 }

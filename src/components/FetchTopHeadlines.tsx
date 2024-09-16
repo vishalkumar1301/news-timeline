@@ -14,10 +14,9 @@ const sourceOptions = [
 type FetchTopHeadlinesProps = {
   onFetchSuccess: (articles: Article[]) => void;
   onFetchError: (message: string) => void;
-  onFetchLoading: (isLoading: boolean) => void;
 }
 
-export default function FetchTopHeadlines({ onFetchSuccess, onFetchError, onFetchLoading }: FetchTopHeadlinesProps) {
+export default function FetchTopHeadlines({ onFetchSuccess, onFetchError }: FetchTopHeadlinesProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -49,7 +48,6 @@ export default function FetchTopHeadlines({ onFetchSuccess, onFetchError, onFetc
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    onFetchLoading(true);
     setError('');
     try {
       const query = new URLSearchParams()
@@ -71,7 +69,6 @@ export default function FetchTopHeadlines({ onFetchSuccess, onFetchError, onFetc
       console.error(err);
     } finally {
       setLoading(false);
-      onFetchLoading(false);
     }
   };
 

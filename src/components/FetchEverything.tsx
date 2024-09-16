@@ -14,10 +14,9 @@ const sourceOptions = [
 type FetchEverythingProps = {
   onFetchSuccess: (articles: Article[]) => void;
   onFetchError: (message: string) => void;
-  onFetchLoading: (isLoading: boolean) => void;
 }
 
-export default function FetchEverything({ onFetchSuccess, onFetchError, onFetchLoading }: FetchEverythingProps) {
+export default function FetchEverything({ onFetchSuccess, onFetchError }: FetchEverythingProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -51,7 +50,6 @@ export default function FetchEverything({ onFetchSuccess, onFetchError, onFetchL
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    onFetchLoading(true);
     setError('');
     try {
       const query = new URLSearchParams()
@@ -75,7 +73,6 @@ export default function FetchEverything({ onFetchSuccess, onFetchError, onFetchL
       console.error(err);
     } finally {
       setLoading(false);
-      onFetchLoading(false);
     }
   };
 
