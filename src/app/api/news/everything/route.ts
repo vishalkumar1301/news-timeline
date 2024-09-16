@@ -9,7 +9,7 @@ import { THE_VERGE_SETTINGS } from '@/config/newsSourceSettings';
 const newsService = new NewsService();
 
 const { params, TOTAL_PAGE_LIMIT } = THE_VERGE_SETTINGS;
-const API_DELAY = 1000; // 1 second delay between API calls
+const API_DELAY = 1000;
 
 export const dynamic = 'force-dynamic';
 

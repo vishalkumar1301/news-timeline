@@ -1,14 +1,15 @@
 import { Source } from './Source';
 
 export interface Article {
-  sourceId: string;
-  source: Source;
-  author: string;
+  source: {
+    id: string | null;
+    name: string;
+  };
+  author: string | null;
   title: string;
-  description: string;
+  description: string | null;
   url: string;
-  urlToImage: string;
+  urlToImage: string | null;
   publishedAt: string;
-  content: string;
-  tags?: string[];
+  content: string | null;
 }
