@@ -52,9 +52,9 @@ export default function FetchTopHeadlines({ onFetchSuccess, onFetchError }: Fetc
     try {
       const query = new URLSearchParams()
       query.append('sources', settings.params.sources.join(','))
-      query.append('sortBy', settings.params.sortBy)
       query.append('pageSize', settings.params.pageSize.toString())
       query.append('page', settings.params.page.toString())
+      query.append('TOTAL_PAGE_LIMIT', settings.TOTAL_PAGE_LIMIT.toString())
 
       const response = await fetch(`/api/news/top-headlines?${query.toString()}`);
       if (!response.ok) {
@@ -108,20 +108,6 @@ export default function FetchTopHeadlines({ onFetchSuccess, onFetchError }: Fetc
             onChange={(e) => handleChange('pageSize', parseInt(e.target.value))}
           />
         </div>
-      </div>
-
-      <div>
-        <Label htmlFor="sortBy">Sort By</Label>
-        <Select onValueChange={(value) => handleChange('sortBy', value)} defaultValue={settings.params.sortBy}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select sort order" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="publishedAt">Published At</SelectItem>
-            <SelectItem value="relevancy">Relevancy</SelectItem>
-            <SelectItem value="popularity">Popularity</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>

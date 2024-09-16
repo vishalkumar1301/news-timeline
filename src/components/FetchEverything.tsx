@@ -57,6 +57,7 @@ export default function FetchEverything({ onFetchSuccess, onFetchError }: FetchE
       query.append('sortBy', settings.params.sortBy)
       query.append('pageSize', settings.params.pageSize.toString())
       query.append('page', settings.params.page.toString())
+      query.append('TOTAL_PAGE_LIMIT', settings.TOTAL_PAGE_LIMIT.toString())
       if (settings.params.from) query.append('from', settings.params.from)
       if (settings.params.to) query.append('to', settings.params.to)
 

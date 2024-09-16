@@ -4,23 +4,27 @@ import { NewsService } from '@/services/NewsService';
 import { NewsAPIResponse } from '@/lib/NewsAPIResponse';
 import { saveNewsToDatabase } from '@/lib/db/dbOperations';
 import { NewsAPITopHeadlinesParams } from '@/lib/NewsAPIRequestParams';
-import { REUTERS_SETTINGS } from '@/config/newsSourceSettings';
 
 const newsService = new NewsService();
-
-const { params, TOTAL_PAGE_LIMIT } = REUTERS_SETTINGS;
-const API_DELAY = 1000; // 1 second delay between API calls
+const API_DELAY = 1000;
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const params: NewsAPITopHeadlinesParams = {
+    sources: searchParams.get('sources') || '',
+    pageSize: parseInt(searchParams.get('pageSize') || '20'),
+    page: parseInt(searchParams.get('page') || '1'),
+    apiKey: process.env.NEXT_PUBLIC_NEWS_API_KEY || '',
+  };
+
+  const TOTAL_PAGE_LIMIT = parseInt(searchParams.get('TOTAL_PAGE_LIMIT') || '1');
+
   try {
     const allArticles: Article[] = [];
     
-    const firstPageData: NewsAPIResponse = await newsService.fetchTopHeadlines({
-      ...params,
-      page: 1
-    } as NewsAPITopHeadlinesParams);
+    const firstPageData: NewsAPIResponse = await newsService.fetchTopHeadlines(params);
     
     allArticles.push(...firstPageData.articles);
 
@@ -30,7 +34,7 @@ export async function GET() {
       const newsData: NewsAPIResponse = await newsService.fetchTopHeadlines({
         ...params,
         page
-      } as NewsAPITopHeadlinesParams);
+      });
       allArticles.push(...newsData.articles);
 
       await new Promise(resolve => setTimeout(resolve, API_DELAY));
@@ -41,6 +45,6 @@ export async function GET() {
     return NextResponse.json(allArticles);
   } catch (error) {
     console.error('Error in API route:', error);
-    throw error;
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
