@@ -59,7 +59,7 @@ export default function NewsTimeline({ articles }: { articles: Article[] }) {
 									</time>
 									<span className="mx-2">•</span>
 									<Globe className="mr-1 h-4 w-4" />
-									<span>{article.source.id}</span>
+									<span>{article.sourceId}</span>
 								</div>
 								{/* {article.urlToImage && (
 									<Image

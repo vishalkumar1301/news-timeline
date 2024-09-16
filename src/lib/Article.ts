@@ -10,5 +10,6 @@ export interface Article {
   urlToImage: string | null;
   publishedAt: string;
   content: string | null;
+  sourceId: string | null;
   tags: string[];
 }
